@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TODO APP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        #mainarea {
+            margin-top: 20px;
+        }
+
+        div.todo-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px auto;
+            padding: 10px;
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        span {
+            margin-right: 10px;
+        }
+
+        button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #d32f2f;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<script>
+
+    function deleteDone() {
+        console.log("To do deleted");
+    }
+    
+    function deletetodo(id) {
+        console.log(id);
+        fetch("http://localhost:3000/todos/" + id, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(deleteDone);
+    }
+    
+    function callbacktodos(data) {
+        console.log(data);
+        var parentElement = document.getElementById("mainarea");
+        parentElement.innerHTML = ""; // Clear previous todos
+        for (var i = 0; i < data.length; i++) {
+            var a = document.createElement("div");
+            a.className = "todo-item"; // Add class for styling
+    
+            var b = document.createElement("span");
+            b.innerHTML = data[i].title;
+    
+            var c = document.createElement("span");
+            c.innerHTML = data[i].description;
+    
+            var d = document.createElement("button");
+            d.innerHTML = "Delete";
+            d.setAttribute("onclick", "deletetodo(" + data[i].id + ")");
+    
+            a.appendChild(b);
+            a.appendChild(c);
+            a.appendChild(d);
+            parentElement.appendChild(a);
+        }
+    }
+    
+    function callback2(resp) {
+        resp.json().then(callbacktodos);
+    }
+    
+    function getData() {
+        fetch("http://localhost:3000/todos", {
+            method: "GET",
+        }).then(callback2);
+    }
+    getData();
+    
+    function parsedResponse(data) {
+        console.log(data);
+        var parentElement = document.getElementById("mainarea");
+        var a = document.createElement("div");
+        a.className = "todo-item"; // Add class for styling
+    
+        var b = document.createElement("span");
+        b.innerHTML = data.title;
+    
+        var c = document.createElement("span");
+        c.innerHTML = data.description;
+    
+        var d = document.createElement("button");
+        d.innerHTML = "Delete";
+        d.setAttribute("onclick", "deletetodo(" + data.id + ")"); // Add delete functionality
+    
+        a.appendChild(b);
+        a.appendChild(c);
+        a.appendChild(d);
+        parentElement.appendChild(a);
+    }
+    
+    function callback(resp) {
+        resp.json().then(parsedResponse);
+    }
+    
+    function onpress() {
+        var title1 = document.getElementById("title").value;
+        var description1 = document.getElementById("description").value;
+        console.log(title1);
+        fetch("http://localhost:3000/todos", {
+            method: "POST",
+            body: JSON.stringify({
+                title: title1,
+                description: description1,
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(callback);
+    }    
+</script>
+<body align="center">
+    Todo title
+    <input type="text" id="title"></input>
+    <br><br>
+    Todo description
+    <input type="text" id="description"></input>
+    <br><br>
+    <button onclick="onpress()">send todo</button>
+    <div id="mainarea">
+    </div>
+
+</body>
+</html>
